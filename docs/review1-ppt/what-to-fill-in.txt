@@ -1,0 +1,55 @@
+﻿# SecureNeuroGrade — WHAT YOU NEED TO FILL IN BEFORE THE REVIEW
+# Quick reference for missing items that can't be pulled from the codebase.
+# ============================================================================
+
+CATEGORY: TITLE SLIDE
+─────────────────────
+□ Each team member's full name + roll number
+□ Guide's name and designation
+□ Co-guide's name (if any)
+□ Academic year (e.g. 2025–2026)
+□ Exact approved title from Zeroth Review sheet
+
+CATEGORY: RESULTS (train the model first — ~1-2 days on Kaggle free GPU)
+─────────────────────────────────────────────────────────────────────────
+□ Test Accuracy (expected >96%)
+□ Precision, Recall, F1-score per class
+□ Confusion matrix image
+□ Training loss + accuracy curves (from notebook)
+□ Any baseline model comparisons (e.g. ResNet50, VGG16)
+
+CATEGORY: TIMELINE & DATES
+───────────────────────────
+□ Review 2 date
+□ Final submission date
+□ Who will complete each remaining task and when (for Gantt chart)
+
+CATEGORY: TEAM CONTRIBUTIONS
+─────────────────────────────
+□ Which team member built which module/feature
+
+CATEGORY: ZEROTH REVIEW COMPARISON
+─────────────────────────────────────
+□ Copy the committee's exact feedback points from Zeroth Review notes
+□ For each point, write what action was taken (or what is planned)
+
+CATEGORY: REFERENCES (need 10–15 total)
+─────────────────────────────────────────
+□ Your base paper (exact citation)
+□ At minimum: 5 papers on brain tumor classification with deep learning
+□ At minimum: 2 papers on AES/medical data security
+□ At minimum: 2 papers on healthcare RBAC
+□ 1–2 survey papers on medical AI
+
+CATEGORY: SCREENSHOTS (already implemented — just run the app)
+──────────────────────────────────────────────────────────────
+□ Login page
+□ Technician upload form
+□ A rejected scan with diagnostic error message
+□ A completed scan status
+□ Doctor result detail (class, confidence, risk badge)
+□ Any additional UI views you want to showcase
+
+NOTE: Everything else in the slide content file is ready and
+extracted from the actual codebase. Do not make up accuracy numbers —
+use [PLACEHOLDER] or train the model and get real ones.

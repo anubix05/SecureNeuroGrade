@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Patient History — SecureNeuroGrade{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('doctor.all_patients') if current_user.is_doctor else url_for('technician.dashboard') }}" class="btn btn-outline btn-sm back-btn" data-fallback="{{ url_for('doctor.all_patients') if current_user.is_doctor else url_for('technician.dashboard') }}">
+        <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back
+    </a>
+    <h1>Patient: {{ patient.patient_identifier }}</h1>
+</div>
+
+<div class="card">
+    <div class="card-header"><h2>Scan History</h2></div>
+    <div class="card-body">
+        {% if scans %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Scan ID</th>
+                    <th>Organ</th>
+                    <th>Status</th>
+                    <th>Uploaded</th>
+                    {% if current_user.is_doctor %}<th>Prediction</th>{% endif %}
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in scans %}
+                {% set result = scan.results.first() %}
+                <tr>
+                    <td class="filename-cell">#{{ scan.id }}</td>
+                    <td>{{ scan.organ_type | capitalize }}</td>
+                    <td>
+                        <span class="status-badge status-{{ scan.status | lower }}">{{ scan.status }}</span>
+                    </td>
+                    <td>{{ scan.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</td>
+
+                    {% if current_user.is_doctor %}
+                    <td>
+                        {% if result %}
+                            <span style="font-weight:600;">
+                                {{ result.prediction_class | replace('_',' ') | title }}
+                            </span>
+                            <span class="text-muted" style="font-size:0.82rem;">
+                                — {{ '%.1f' % (result.confidence_score * 100) }}%
+                            </span>
+                            {% if result.risk_level %}
+                            <span class="risk-badge risk-{{ result.risk_level | lower }}" style="margin-left:4px;">
+                                {{ result.risk_level }}
+                            </span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+
+                    <td>
+                        {% if current_user.is_doctor and result %}
+                            {# Doctor + result exists → full detail page with MRI viewer, confidence bars, etc. #}
+                            <a href="{{ url_for('doctor.result_detail', result_id=result.id) }}"
+                               class="btn btn-sm btn-primary">
+                                <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                                View Full Result
+                            </a>
+                        {% else %}
+                            {# Technician or no result yet → basic scan detail #}
+                            <a href="{{ url_for('scans.scan_detail', scan_id=scan.id) }}"
+                               class="btn btn-sm btn-outline">
+                                View
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><p>No scans found for this patient.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

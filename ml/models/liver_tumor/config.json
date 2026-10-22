@@ -1,0 +1,21 @@
+{
+    "disease_type": "liver_tumor",
+    "organ_type": "liver",
+    "model_name": "liver-tumor-cnn",
+    "model_version": "v0.1-placeholder",
+    "description": "Liver tumor classification model configuration (Hepatocellular Carcinoma, Cholangiocarcinoma, Benign, Normal).",
+    "input_shape": [224, 224, 3],
+    "classes": [
+        "hepatocellular_carcinoma",
+        "cholangiocarcinoma",
+        "benign_lesion",
+        "normal"
+    ],
+    "preprocessing": {
+        "resize": [224, 224],
+        "normalize": true,
+        "normalize_range": [0.0, 1.0],
+        "color_mode": "rgb"
+    },
+    "notes": "Organized under ml/models/liver_tumor/ for multi-organ roadmap extension."
+}

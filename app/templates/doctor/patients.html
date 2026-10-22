@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}All Patients — SecureNeuroGrade{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>All Patients</h1>
+    <p class="dashboard-subtitle">Registered Patient Directory & Scan History</p>
+</div>
+
+<!-- Search Box -->
+<div class="card" style="margin-bottom: var(--space-lg);">
+    <div class="card-body" style="padding: var(--space-md) var(--space-lg);">
+        <form method="GET" action="{{ url_for('doctor.all_patients') }}" class="search-form">
+            <div class="search-input-wrapper">
+                <svg class="search-icon-inside" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text"
+                       name="q"
+                       value="{{ query }}"
+                       class="form-input"
+                       placeholder="Search patient identifier (e.g. PT-1001)..."
+                       aria-label="Search patient identifier">
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                Search
+            </button>
+            {% if query %}
+            <a href="{{ url_for('doctor.all_patients') }}" class="btn btn-outline">
+                Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Patient Directory Table -->
+<div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>
+            <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Patient Directory
+        </h2>
+        <span class="badge badge-primary">{{ patients | length }} {{ 'Patient' if patients | length == 1 else 'Patients' }}</span>
+    </div>
+    <div class="card-body">
+        {% if patients %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Patient Identifier</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Total Scans</th>
+                        <th>Registered Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ patient.patient_identifier }}</td>
+                        <td>{{ patient.age if patient.age else '—' }}</td>
+                        <td>{{ patient.gender | capitalize if patient.gender else '—' }}</td>
+                        <td>
+                            <span class="badge badge-secondary">{{ patient.scans.count() }}</span>
+                        </td>
+                        <td>{{ patient.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <a href="{{ url_for('scans.patient_scans', patient_id=patient.id) }}"
+                               class="btn btn-sm btn-outline">
+                                <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                                View History
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            {% if query %}
+            <p>No patients found matching "<strong>{{ query }}</strong>".</p>
+            <p style="margin-top: var(--space-sm);">
+                <a href="{{ url_for('doctor.all_patients') }}" class="btn btn-sm btn-outline">Clear Search</a>
+            </p>
+            {% else %}
+            <p>No patient records found in the system.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

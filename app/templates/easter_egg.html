@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Developers — SecureNeuroGrade{% endblock %}
+
+{% block content %}
+<div class="easter-egg-container">
+    <div style="text-align: left; margin-bottom: var(--space-lg);">
+        <a href="javascript:void(0);" class="btn btn-outline btn-sm back-btn" data-fallback="/">
+            <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Back
+        </a>
+    </div>
+
+    <div class="card easter-egg-card">
+        <div class="card-body easter-egg-body">
+            <!-- Big Brain Icon in Center -->
+            <div class="easter-egg-icon-wrapper">
+                <svg class="easter-egg-brain-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 0 5.61 3 3 0 1 0 5.142 3.01A3 3 0 1 0 12 17"/>
+                    <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1 0 5.61 3 3 0 1 1-5.142 3.01A3 3 0 1 1 12 17"/>
+                    <path d="M12 5v14"/>
+                    <path d="M12 9a3 3 0 0 0-3 3"/>
+                    <path d="M12 13a3 3 0 0 1 3 3"/>
+                </svg>
+            </div>
+
+            <h1 class="easter-egg-title">SecureNeuroGrade</h1>
+            <p class="easter-egg-subtitle">Team 15 — S7 Cyber Security | MITS, Kochi</p>
+
+            <div class="easter-egg-divider"></div>
+
+            <h2 class="easter-egg-heading">Project Developers</h2>
+
+            <!-- 4 Developer names listed (2 names in each line) -->
+            <div class="team-grid">
+                <div class="team-row">
+                    <div class="developer-card">
+                        <span class="developer-name">Anargha Sathyapal</span>
+                    </div>
+                    <div class="developer-card">
+                        <span class="developer-name">Anubind C Biju</span>
+                    </div>
+                </div>
+                <div class="team-row">
+                    <div class="developer-card">
+                        <span class="developer-name">Helen Hanna John</span>
+                    </div>
+                    <div class="developer-card">
+                        <span class="developer-name">Nadia Muneem</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

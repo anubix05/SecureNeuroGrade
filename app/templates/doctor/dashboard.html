@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Doctor Dashboard — SecureNeuroGrade{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Doctor Dashboard</h1>
+    <p class="dashboard-subtitle">AI-Assisted Scan Results — Decision Support</p>
+</div>
+
+<!-- Medical-AI Disclaimer Banner -->
+<div class="alert alert-info disclaimer-banner">
+    <strong>
+        <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/>
+        </svg>
+        Decision Support System:
+    </strong> All results shown are AI model
+    predictions and should be interpreted by a qualified medical professional.
+    Confidence scores represent model output probability, not clinical certainty.
+</div>
+
+<!-- Scan Results Table -->
+<div class="card">
+    <div class="card-header">
+        <h2>
+            <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            Scan Results
+        </h2>
+    </div>
+    <div class="card-body">
+        {% if scans %}
+        <div class="table-responsive">
+            <table class="data-table" id="results-table">
+                <thead>
+                    <tr>
+                        <th>Scan ID</th>
+                        <th>Patient</th>
+                        <th>Organ</th>
+                        <th>Status</th>
+                        <th>Uploaded</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for scan in scans %}
+                    <tr>
+                        <td>#{{ scan.id }}</td>
+                        <td>{{ scan.patient.patient_identifier }}</td>
+                        <td>{{ scan.organ_type | capitalize }}</td>
+                        <td>
+                            <span class="status-badge status-{{ scan.status | lower }}">
+                                {{ scan.status }}
+                            </span>
+                        </td>
+                        <td>{{ scan.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            {% if scan.results.first() %}
+                                <a href="{{ url_for('doctor.result_detail', result_id=scan.results.first().id) }}"
+                                   class="btn btn-sm btn-primary">
+                                    View Result
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No completed scans available yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

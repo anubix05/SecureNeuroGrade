@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Scan Status — SecureNeuroGrade{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('technician.dashboard') }}" class="btn btn-outline btn-sm back-btn" data-fallback="{{ url_for('technician.dashboard') }}">
+        <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back
+    </a>
+    <h1>Scan Status</h1>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Scan #{{ scan.id }} — {{ scan.original_filename }}</h2>
+    </div>
+    <div class="card-body">
+        <div class="status-detail">
+            <!-- Status Badge -->
+            <div class="status-hero">
+                <span class="status-badge status-badge-lg status-{{ scan.status | lower }}">
+                    {{ scan.status }}
+                </span>
+            </div>
+
+            <!-- Scan Information -->
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Patient</span>
+                    <span class="detail-value">{{ scan.patient.patient_identifier }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Original Filename</span>
+                    <span class="detail-value">{{ scan.original_filename }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">File Size</span>
+                    <span class="detail-value">
+                        {% if scan.file_size %}
+                            {{ (scan.file_size / 1024) | round(1) }} KB
+                        {% else %}
+                            —
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Organ Type</span>
+                    <span class="detail-value">{{ scan.organ_type | capitalize }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Uploaded At</span>
+                    <span class="detail-value">{{ scan.uploaded_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Integrity Hash</span>
+                    <span class="detail-value hash-value">{{ scan.file_hash[:16] }}…</span>
+                </div>
+            </div>
+
+            <!-- Failure / Rejection Details & Retry Action -->
+            {% if scan.status in ['REJECTED', 'FAILED'] %}
+            <div class="alert alert-danger">
+                <strong>
+                    <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    Processing Failure Details ({{ scan.status }}):
+                </strong>
+                <p style="margin-top: 6px; font-weight: 500;">{{ scan.rejection_reason or 'An error occurred during processing.' }}</p>
+                <div style="margin-top: 12px;">
+                    <a href="{{ url_for('technician.retry_scan', scan_id=scan.id) }}" class="btn btn-primary btn-sm">
+                        <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                        </svg>
+                        Retry Scan Upload
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Processing Status -->
+            {% if scan.status in ['PROCESSING', 'VALIDATING', 'ENCRYPTING'] %}
+            <div class="alert alert-info">
+                <strong>
+                    <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>
+                    </svg>
+                    Processing:
+                </strong> Your scan is currently being processed.
+                This page will update when processing is complete.
+            </div>
+            {% endif %}
+
+            {% if scan.status == 'COMPLETED' %}
+            <div class="alert alert-success">
+                <strong>
+                    <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Complete:
+                </strong> Scan has been processed.
+                Results are available for doctor review.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

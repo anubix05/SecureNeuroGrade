@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Scan Detail — SecureNeuroGrade{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('doctor.dashboard') if current_user.is_doctor else url_for('technician.dashboard') }}" class="btn btn-outline btn-sm back-btn" data-fallback="{{ url_for('doctor.dashboard') if current_user.is_doctor else url_for('technician.dashboard') }}">
+        <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back
+    </a>
+    <h1>Scan #{{ scan.id }}</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span class="detail-label">Patient</span>
+                <span class="detail-value">{{ patient.patient_identifier }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Status</span>
+                <span class="status-badge status-{{ scan.status | lower }}">{{ scan.status }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Organ Type</span>
+                <span class="detail-value">{{ scan.organ_type | capitalize }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Uploaded</span>
+                <span class="detail-value">{{ scan.uploaded_at.strftime('%Y-%m-%d %H:%M UTC') }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if scan.status in ['REJECTED', 'FAILED'] and scan.rejection_reason %}
+<div class="card">
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <strong>
+                <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                Processing Failure Details ({{ scan.status }}):
+            </strong>
+            <p style="margin-top: 6px; font-weight: 500;">{{ scan.rejection_reason }}</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if results %}
+<div class="card">
+    <div class="card-header"><h2>Results</h2></div>
+    <div class="card-body">
+        {% for r in results %}
+        <div class="result-summary">
+            <span class="result-class">{{ r.prediction_class | replace('_',' ') | title }}</span>
+            — Confidence: {{ '%.1f' % (r.confidence_score * 100) }}%
+            {% if r.risk_level %}| Risk: {{ r.risk_level }}{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

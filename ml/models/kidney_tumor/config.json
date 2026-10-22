@@ -1,0 +1,21 @@
+{
+    "disease_type": "kidney_tumor",
+    "organ_type": "kidney",
+    "model_name": "kidney-tumor-cnn",
+    "model_version": "v0.1-placeholder",
+    "description": "Kidney tumor classification model configuration (Renal Cell Carcinoma, Chromophobe, Oncocytoma, Normal).",
+    "input_shape": [224, 224, 3],
+    "classes": [
+        "renal_cell_carcinoma",
+        "chromophobe",
+        "oncocytoma",
+        "normal"
+    ],
+    "preprocessing": {
+        "resize": [224, 224],
+        "normalize": true,
+        "normalize_range": [0.0, 1.0],
+        "color_mode": "rgb"
+    },
+    "notes": "Organized under ml/models/kidney_tumor/ for multi-organ roadmap extension."
+}

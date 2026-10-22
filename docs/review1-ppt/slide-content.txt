@@ -1,0 +1,425 @@
+﻿# SecureNeuroGrade — Review 1 Presentation Content Pack
+# Slide-by-slide content for building the PowerPoint
+# Generated: October 7, 2026
+# 
+# HOW TO USE THIS FILE:
+# Each block below maps to one slide. Placeholders marked [FILL] need
+# your input (team roll numbers, guide name, real dates, references, etc.)
+# Everything else is extracted from the live codebase and DIARY.md.
+# ============================================================================
+
+================================================================================
+SLIDE 1 — TITLE SLIDE
+================================================================================
+
+Title:     SecureNeuroGrade
+Subtitle:  A Secure Web-Based Brain Tumor Detection System Using Deep Learning
+
+Team:      Team 15 — S7 Cyber Security
+Members:
+  • Anargha Sathyapal       Roll No: [FILL]
+  • Anubind C Biju          Roll No: [FILL]
+  • Helen Hanna John        Roll No: [FILL]
+  • Nadia Muneem            Roll No: [FILL]
+
+Guide:     [FILL: Guide Name & Designation]
+Co-Guide:  [FILL: Co-Guide Name, if any]
+Dept:      Computer Science & Engineering (Cyber Security)
+College:   Muthoot Institute of Technology and Science (MITS), Kochi (Autonomous)
+Affil.:    APJ Abdul Kalam Technological University (KTU)
+Year:      [FILL: e.g. 2025–2026]
+
+Approved Title (exact, from Zeroth Review): [FILL]
+
+================================================================================
+SLIDE 2 — PROBLEM STATEMENT
+================================================================================
+
+• Brain tumors are among the most lethal neurological disorders.
+• Manual MRI analysis is time-consuming and prone to fatigue-related error.
+• Existing systems lack:
+    - Encrypted transmission/storage of sensitive MRI scans
+    - Automated quality validation before AI inference
+    - Role-separated access for lab technicians vs. doctors
+    - Full audit trails for all imaging workflow events
+• SecureNeuroGrade addresses all these gaps in one integrated platform.
+
+================================================================================
+SLIDE 3 — OBJECTIVES
+================================================================================
+
+1. Implement AES-256-GCM encryption for MRI scans at rest (Module M1)
+2. Automate scan quality validation: format, file size, resolution (Module M2)
+3. Classify brain tumors into 4 classes using EfficientNetB0 Transfer Learning:
+   Glioma | Meningioma | Pituitary | No Tumor
+4. Assign clinical risk levels: LOW / MODERATE / HIGH / CRITICAL (Module M3)
+5. Restrict result access to authorized doctors using RBAC
+6. Log all security and workflow events via a tamper-evident audit trail (M4)
+7. Deliver a professional web interface for both technicians and doctors
+
+================================================================================
+SLIDE 4 — SYSTEM ARCHITECTURE (Pipeline)
+================================================================================
+
+Draw this as a proper flowchart in PowerPoint:
+
+  Lab Technician
+       │ MRI Upload (.png/.jpg/.dcm/.nii)
+       ▼
+  ┌──────────────────────────────┐
+  │ M1: AES-256-GCM Encryption  │ ← Encrypted .enc file stored on disk
+  └──────────────────────────────┘
+       │
+       ▼
+  ┌──────────────────────────────┐
+  │ M2: Scan Quality Checker     │ ← Reject → Technician Retry Workflow
+  └──────────────────────────────┘
+       │ Pass
+       ▼
+  ┌──────────────────────────────┐
+  │ AI Model: EfficientNetB0     │
+  │ 4-Class Brain Tumor CNN      │ ← Output: P(glioma, meningioma,
+  │                              │           pituitary, no_tumor)
+  └──────────────────────────────┘
+       │
+       ▼
+  ┌──────────────────────────────┐
+  │ M3: Classifier & Risk Engine │ ← Risk: LOW/MODERATE/HIGH/CRITICAL
+  └──────────────────────────────┘
+       │
+       ▼
+  ┌──────────────────────────────┐
+  │ M4: Audit & Inference Logger │ ← 11 Event Types, Timestamped
+  └──────────────────────────────┘
+       │
+       ▼
+  Doctor Dashboard (RBAC — Doctors only)
+
+================================================================================
+SLIDE 5 — MODULE M1: AES-256-GCM ENCRYPTION
+================================================================================
+
+Status:     85% Complete
+File:       app/security/encryption.py
+            app/services/encryption_service.py
+
+Algorithm:  AES-256-GCM (Authenticated Encryption with Associated Data)
+Key:        256-bit (32 bytes) — loaded from ENCRYPTION_KEY env variable
+Nonce:      12 bytes — randomly generated per file (os.urandom)
+Auth Tag:   16 bytes — detects any tampered byte in the stored file
+Format:     Stored as: [nonce 12B] || [auth_tag 16B] || [ciphertext]
+
+Why AES-256-GCM?
+  Confidentiality:  2^256 key space — quantum-resilient
+  Integrity:        Auth tag catches any bit-level file tampering
+  Performance:      Hardware-accelerated via CPU AES-NI instructions
+  Standard:         NIST-approved, healthcare and government grade (HIPAA-aligned)
+
+Remaining 15%: Wire encrypt_scan() call into the upload HTTP POST handler
+               in app/routes/technician.py before file is written to disk.
+
+================================================================================
+SLIDE 6 — MODULE M2: SCAN QUALITY CHECKER
+================================================================================
+
+Status:     100% Complete
+File:       app/services/quality_service.py
+
+Validation Rules:
+  ┌──────────────────────┬─────────────────────────────────────────────┐
+  │ Check                │ Criteria                                    │
+  ├──────────────────────┼─────────────────────────────────────────────┤
+  │ File Extension       │ .png .jpg .jpeg .tif .tiff .dcm .nii       │
+  │ File Size            │ 1 KB minimum — 100 MB maximum               │
+  │ Image Dimensions     │ 32×32 px minimum — 4096×4096 px maximum    │
+  │ File Integrity       │ Pillow decode — catches corrupted files     │
+  │ Channels             │ Convertible to 3-channel RGB                │
+  └──────────────────────┴─────────────────────────────────────────────┘
+
+On Rejection:
+  • Scan status → REJECTED
+  • Stage label shown to technician: "[Stage: Scan Quality Checker (M2)]"
+  • Failure reason displayed in clear language
+  • Retry workflow: /technician/retry/<scan_id>
+
+================================================================================
+SLIDE 7 — AI MODEL: EfficientNetB0 TRANSFER LEARNING
+================================================================================
+
+Architecture:   EfficientNetB0 (pre-trained on ImageNet)
+Framework:      TensorFlow / Keras
+Task:           4-Class Brain Tumor MRI Classification
+
+Dataset:        Kaggle Brain Tumor MRI Dataset (Masoud Nickparvar)
+                ~7,023 brain MRI scans — axial, coronal, sagittal views
+
+Classes:
+  0: glioma | 1: meningioma | 2: pituitary | 3: no_tumor
+
+Input:          (1, 224, 224, 3) — float32, pixel range [0.0, 1.0]
+Output:         (1, 4) — Softmax probability distribution
+
+Split:          Train ~5,000 | Val ~900 | Test ~1,300 (seed=42, reproducible)
+
+Training Strategy:
+  Phase 1 (10 epochs): Classifier head only. Base model frozen. LR = 1e-4
+  Phase 2 (15 epochs): Fine-tune top 40 EfficientNet layers. LR = 1e-5
+
+Augmentation:   RandomRotation, RandomZoom, RandomFlip, RandomContrast
+
+Training Notebook: train_brain_tumor.ipynb (Kaggle/Colab GPU ready)
+Expected Accuracy: >96% (EfficientNetB0 benchmark on this dataset)
+
+[PLACEHOLDER — Replace with real metrics, curves, confusion matrix after training]
+
+================================================================================
+SLIDE 8 — MODULE M3: CLASSIFIER & RISK ENGINE
+================================================================================
+
+Status:     100% Complete
+File:       app/services/classification_service.py
+
+Risk Level Decision Table:
+  ┌──────────────────────────────────┬──────────────────────────────────────┐
+  │ Condition                        │ Risk Level                           │
+  ├──────────────────────────────────┼──────────────────────────────────────┤
+  │ Tumor detected + confidence ≥85% │ CRITICAL — Immediate clinical review │
+  │ Tumor detected + 60%–85%         │ HIGH     — Priority review           │
+  │ Tumor detected + 40%–60%         │ MODERATE — Recommended review        │
+  │ No tumor + confidence ≥85%       │ LOW      — Routine follow-up         │
+  │ No tumor + confidence <85%       │ MODERATE — Uncertainty flagged       │
+  └──────────────────────────────────┴──────────────────────────────────────┘
+
+Output dict (to Doctor Dashboard):
+  predicted_class:  "glioma"
+  confidence_score: 0.9245   (92.45%)
+  risk_level:       "CRITICAL"
+  tumor_detected:   true
+  all_predictions:  {glioma: 0.9245, meningioma: 0.03, pituitary: 0.02, no_tumor: 0.025}
+  summary:          "Model prediction: glioma, confidence: 92.5%. Risk: CRITICAL."
+
+Disclaimer on all result pages:
+  "Model predictions are decision support only and do not constitute a clinical diagnosis."
+
+================================================================================
+SLIDE 9 — MODULE M4: AUDIT & INFERENCE LOGGER
+================================================================================
+
+Status:     100% Complete
+File:       app/services/audit_service.py
+Table:      AuditLog (SQLite)
+
+11 Event Types:
+  1. LOGIN_SUCCESS       7. INFERENCE_STARTED
+  2. LOGIN_FAILURE       8. INFERENCE_COMPLETED
+  3. LOGOUT              9. INFERENCE_FAILED
+  4. SCAN_UPLOADED      10. RESULT_VIEWED
+  5. SCAN_ACCEPTED      11. ACCESS_DENIED
+  6. SCAN_REJECTED
+
+Each log entry records:
+  Timestamp | Event Type | User ID | Scan ID | Model Version
+  IP Address | Success Flag | Detail message
+
+Never logged: passwords, encryption keys, session tokens, raw image data
+
+================================================================================
+SLIDE 10 — DATABASE SCHEMA
+================================================================================
+
+6 Entities (SQLAlchemy ORM, SQLite):
+
+User            id, username, email, password_hash (bcrypt), role, is_active
+Patient         id, patient_identifier, age, gender
+Scan            id, patient_id, uploaded_by, filename, original_filename,
+                file_hash (SHA-256), file_size, organ_type, status,
+                rejection_reason, uploaded_at
+InferenceResult id, scan_id, model_version_id, prediction_class,
+                confidence_score, risk_level, raw_output_json, created_at
+AuditLog        id, event_type, user_id, scan_id, model_version,
+                ip_address, success, details, created_at
+ModelVersion    id, organ_type, model_name, version_string,
+                checkpoint_path, accuracy, is_active, config_json
+
+Relationships:
+  User     ──uploads──►  Scan  ──belongs_to──►  Patient
+  Scan     ──produces──► InferenceResult  ──references──►  ModelVersion
+  User     ──creates──►  AuditLog
+
+================================================================================
+SLIDE 11 — SECURITY DESIGN
+================================================================================
+
+Layer               Implementation
+──────────────────────────────────────────────────────────────────────────
+Authentication      bcrypt password hashing (salted rounds), Flask-Login sessions
+Authorization       @role_required server-side decorator, roles: LAB_TECHNICIAN, DOCTOR
+Image Encryption    AES-256-GCM (pycryptodome) — key from env variable, never hardcoded
+File Safety         UUID-generated filenames, SHA-256 integrity hash, path traversal guard
+API Safety          No stack traces exposed, no internal paths, no secrets in responses
+Session Security    HttpOnly cookies, SameSite policy
+Secret Management   All credentials via .env file — never in code or git
+Audit Trail         11 event types logged — no secrets, no raw images in logs
+HTTPS               Planned: Waitress/Gunicorn + TLS for production deployment
+
+================================================================================
+SLIDE 12 — ROLE-BASED ACCESS CONTROL (RBAC)
+================================================================================
+
+Role: LAB_TECHNICIAN
+  Permitted:  Login, upload MRI scans, view upload/processing status,
+              retry rejected scans (/technician/retry/<scan_id>)
+  Restricted: Doctor dashboard, AI results, model configuration
+
+Role: DOCTOR
+  Permitted:  Login, view scan results, confidence scores, risk levels,
+              patient history, result detail page
+  Restricted: Scan upload, admin settings, model config
+
+Enforcement: @role_required decorator on every protected Flask route
+             Backend always validates role — frontend hiding is cosmetic only
+
+================================================================================
+SLIDE 13 — PROGRESS & COMPLETION (WEIGHTED)
+================================================================================
+
+Weighted Completion: ~62%
+
+Area                               Weight   Done    Score
+──────────────────────────────────────────────────────────
+Web App & UI Dashboards             15%   × 100%  = 15.0
+Database & Auth / RBAC              10%   × 100%  = 10.0
+M2, M3, M4 Modules                 15%   × 100%  = 15.0
+M1 AES-256 Encryption              10%   ×  85%  =  8.5
+AI Model, Registry & Checkpoint     30%   ×  35%  = 10.5
+Automated Test Suite                10%   ×  10%  =  1.0
+Deployment / WSGI / HTTPS           10%   ×  20%  =  2.0
+──────────────────────────────────────────────────────────
+TOTAL                              100%           ~ 62.0
+
+Note: AI model carries 30% weight because it is the core research contribution.
+The 62% figure is defensible; 92% (old figure) was not.
+
+================================================================================
+SLIDE 14 — REMAINING WORK & TIMELINE
+================================================================================
+
+Task                                Priority   Effort
+────────────────────────────────────────────────────────
+Train AI model on Kaggle GPU        HIGH       1–2 days
+Integrate .keras into web app       HIGH       0.5 day
+Wire M1 encrypt in upload handler   HIGH       0.5 day
+Write automated tests (pytest)      MEDIUM     1–2 days
+Production WSGI + HTTPS setup       MEDIUM     0.5 day
+────────────────────────────────────────────────────────
+Total remaining effort                         ~4–6 days
+
+Review 2 Date:         [FILL]
+Final Submission Date: [FILL]
+Gantt Chart:           [FILL when dates confirmed]
+
+================================================================================
+SLIDE 15 — RESULTS (TO BE UPDATED AFTER TRAINING)
+================================================================================
+
+Dataset:         Kaggle Brain Tumor MRI Dataset (Masoud Nickparvar)
+Total Images:    ~7,023 brain MRI scans
+Classes:         Glioma | Meningioma | Pituitary | No Tumor
+Split:           Train ~5,000 / Val ~900 / Test ~1,300  (seed=42)
+
+Metrics (PENDING — fill after running train_brain_tumor.ipynb):
+  Test Accuracy:        [PLACEHOLDER — expected >96%]
+  Precision (per class):[PLACEHOLDER]
+  Recall (per class):   [PLACEHOLDER]
+  F1-Score (per class): [PLACEHOLDER]
+  Confusion Matrix:     [PLACEHOLDER — embed screenshot]
+  Training Curves:      [PLACEHOLDER — loss & accuracy vs epoch]
+
+Models Compared:    EfficientNetB0 (primary)
+                    [FILL — any baseline comparisons e.g. ResNet50, VGG16]
+
+================================================================================
+SLIDE 16 — TEAM CONTRIBUTIONS
+================================================================================
+
+[FILL — who built which module]
+
+Member                  Modules / Features Built
+─────────────────────────────────────────────────────────────────────────────
+Anargha Sathyapal       [FILL]
+Anubind C Biju          [FILL]
+Helen Hanna John        [FILL]
+Nadia Muneem            [FILL]
+
+================================================================================
+SLIDE 17 — ZEROTH REVIEW: FEEDBACK & ACTIONS TAKEN
+================================================================================
+
+[FILL — paste committee suggestions from Zeroth Review notes]
+
+Suggestion                           Action Taken
+──────────────────────────────────────────────────────────────────────────────
+[FILL committee point 1]             [FILL your response / implementation]
+[FILL committee point 2]             [FILL your response / implementation]
+[FILL committee point 3]             [FILL your response / implementation]
+
+================================================================================
+SLIDE 18 — FUTURE SCOPE
+================================================================================
+
+Phase 2 Extensions (Architecture already designed for these):
+  • Breast imaging classification model
+  • Skin lesion classification model
+  • Multi-organ support using the same disease-sorted ML registry
+
+Advanced Extensions:
+  • DICOM metadata extraction and structured radiology reporting
+  • Integration with Hospital Information Systems (HIS/PACS)
+  • Federated learning across hospitals for privacy-preserving training
+  • Grad-CAM / explainability overlays on scan images for doctor review
+  • Mobile-responsive interface for clinical tablet use
+
+================================================================================
+SLIDE 19 — REFERENCES
+================================================================================
+
+[FILL — minimum 10–15 IEEE/Springer citations]
+
+Format: [N] Author(s), "Title," Journal/Conference, Vol., No., pp. X–Y, Year. DOI.
+
+Base Paper:
+[1] [FILL — your approved base paper exact citation]
+
+Suggested topics to search on IEEE Xplore / Google Scholar:
+  • Brain tumor MRI classification using CNN / Transfer Learning
+  • EfficientNet / ResNet for medical image analysis
+  • AES encryption for HIPAA-compliant medical data systems
+  • Role-based access control in healthcare information systems
+  • Explainability in deep learning for clinical decision support
+
+================================================================================
+SCREENSHOTS CHECKLIST
+================================================================================
+
+Run the app (steps below) and capture these 8 screenshots:
+
+  [ ] 1. Login page (dark mode)
+  [ ] 2. Technician Dashboard — scan list view
+  [ ] 3. MRI Upload form — drag-and-drop interface
+  [ ] 4. Upload Status — REJECTED scan with diagnostic error (M2 failure)
+  [ ] 5. Upload Status — COMPLETED scan
+  [ ] 6. Doctor Dashboard — scan results list
+  [ ] 7. Doctor Result Detail — class label, confidence %, risk badge, probability bars
+  [ ] 8. Retry Upload form (for a rejected scan)
+
+To run the app:
+  1. Open PowerShell in project folder
+  2. .\venv\Scripts\activate
+  3. python scripts\setup.py --seed
+  4. python run.py
+  5. Open browser: http://127.0.0.1:5000
+  6. Login with seeded test credentials (check scripts\setup.py for test users)
+
+================================================================================
+END OF CONTENT PACK
+================================================================================

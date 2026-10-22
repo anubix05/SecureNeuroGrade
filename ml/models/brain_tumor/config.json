@@ -1,0 +1,56 @@
+{
+    "disease_type": "brain_tumor",
+    "organ_type": "brain",
+    "model_name": "brain-tumor-cafnet",
+    "model_version": "v2.0",
+    "description": "CAFNet (Hybrid CNN-ViT with Cross-Attention Fusion) for 4-class brain tumor MRI classification.",
+    "architecture": {
+        "framework": "CAFNet",
+        "cnn_backbone": "EfficientNetB0",
+        "vit_patches": 196,
+        "patch_size": [
+            16,
+            16
+        ],
+        "projection_dim": 128,
+        "cross_attention_heads": 4,
+        "fusion_mechanism": "Cross-Attention (Query=ViT, Key=CNN, Value=CNN)",
+        "reference": "Jayaraman et al., Scientific Reports 15:45769 (2025)"
+    },
+    "input_shape": [
+        224,
+        224,
+        3
+    ],
+    "classes": [
+        "glioma",
+        "meningioma",
+        "pituitary",
+        "no_tumor"
+    ],
+    "preprocessing": {
+        "resize": [
+            224,
+            224
+        ],
+        "normalize": true,
+        "normalize_range": [
+            0.0,
+            1.0
+        ],
+        "color_mode": "rgb"
+    },
+    "training": {
+        "dataset_version": "Kaggle-Brain-Tumor-MRI (uploaded archive)",
+        "training_date": "2026-10-14",
+        "epochs": 19,
+        "batch_size": 32,
+        "optimizer": "adam",
+        "learning_rate": 0.0001,
+        "fine_tune_learning_rate": 1e-05,
+        "test_accuracy": 0.9112,
+        "test_loss": 0.4051,
+        "test_precision": 0.9155,
+        "test_recall": 0.9069
+    }
+}

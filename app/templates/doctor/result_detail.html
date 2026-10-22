@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}Result Detail — SecureNeuroGrade{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('doctor.dashboard') }}" class="btn btn-outline btn-sm back-btn" data-fallback="{{ url_for('doctor.dashboard') }}">
+        <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back
+    </a>
+    <h1>Inference Result #{{ result.id }}</h1>
+</div>
+
+<!-- Decision Support Disclaimer -->
+<div class="alert alert-info disclaimer-banner">
+    <strong>
+        <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/>
+        </svg>
+        Decision Support Only:
+    </strong> The following result is an AI model
+    prediction and is NOT a confirmed medical diagnosis. Final medical
+    interpretation belongs to a qualified medical professional.
+</div>
+
+<!-- Patient & Scan Info -->
+<div class="card">
+    <div class="card-header">
+        <h2>
+            <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+            Patient & Scan Information
+        </h2>
+    </div>
+    <div class="card-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span class="detail-label">Patient</span>
+                <span class="detail-value">{{ patient.patient_identifier }}</span>
+            </div>
+            {% if patient.age %}
+            <div class="detail-item">
+                <span class="detail-label">Age</span>
+                <span class="detail-value">{{ patient.age }}</span>
+            </div>
+            {% endif %}
+            {% if patient.gender %}
+            <div class="detail-item">
+                <span class="detail-label">Gender</span>
+                <span class="detail-value">{{ patient.gender }}</span>
+            </div>
+            {% endif %}
+            <div class="detail-item">
+                <span class="detail-label">Scan Date</span>
+                <span class="detail-value">{{ scan.uploaded_at.strftime('%Y-%m-%d %H:%M UTC') }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Scan Status</span>
+                <span class="status-badge status-{{ scan.status | lower }}">{{ scan.status }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Organ Type</span>
+                <span class="detail-value">{{ scan.organ_type | capitalize }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Prediction Results -->
+<div class="card result-card">
+    <div class="card-header">
+        <h2>
+            <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/>
+            </svg>
+            AI Model Prediction
+        </h2>
+    </div>
+    <div class="card-body">
+        <!-- Primary Result -->
+        <div class="result-hero">
+            <div class="result-prediction">
+                <span class="result-label">Model Prediction</span>
+                <span class="result-class">{{ result.prediction_class | replace('_', ' ') | title }}</span>
+            </div>
+            <div class="result-confidence">
+                <span class="result-label">Confidence</span>
+                <span class="result-score">{{ '%.1f' % (result.confidence_score * 100) }}%</span>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: {{ (result.confidence_score * 100) | round }}%"></div>
+                </div>
+            </div>
+            {% if result.risk_level %}
+            <div class="result-risk">
+                <span class="result-label">Risk Level</span>
+                <span class="risk-badge risk-{{ result.risk_level | lower }}">
+                    {{ result.risk_level }}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Model Version -->
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span class="detail-label">Model Version</span>
+                <span class="detail-value">
+                    {% if result.model_version %}
+                        {{ result.model_version.name }} v{{ result.model_version.version }}
+                    {% else %}
+                        Not recorded
+                    {% endif %}
+                </span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Analysis Date</span>
+                <span class="detail-value">{{ result.created_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Scan History -->
+<div class="card">
+    <div class="card-header">
+        <h2>
+            <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            </svg>
+            Patient Scan History
+        </h2>
+    </div>
+    <div class="card-body">
+        <a href="{{ url_for('scans.patient_scans', patient_id=patient.id) }}"
+           class="btn btn-outline">
+            View All Scans for {{ patient.patient_identifier }}
+        </a>
+    </div>
+</div>
+
+<!-- Uploaded MRI Scan Viewer -->
+<div class="card scan-viewer-card">
+    <div class="card-header scan-viewer-header">
+        <h2>
+            <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+            </svg>
+            Uploaded MRI Scan
+        </h2>
+        <div class="scan-viewer-actions">
+            <a href="{{ url_for('doctor.view_scan_file', scan_id=scan.id) }}"
+               class="btn btn-sm btn-outline"
+               target="_blank"
+               rel="noopener noreferrer"
+               id="open-scan-btn">
+                <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                Open in New Tab
+            </a>
+            <a href="{{ url_for('doctor.view_scan_file', scan_id=scan.id) }}"
+               class="btn btn-sm btn-primary"
+               download="{{ scan.original_filename }}"
+               id="download-scan-btn">
+                <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download
+            </a>
+        </div>
+    </div>
+    <div class="card-body scan-viewer-body">
+        <div class="scan-file-meta">
+            <span class="detail-label">Original Filename</span>
+            <span class="detail-value filename-cell">{{ scan.original_filename }}</span>
+            {% if scan.file_size %}
+            <span class="detail-label" style="margin-left: 1.5rem;">File Size</span>
+            <span class="detail-value">{{ (scan.file_size / 1024) | round(1) }} KB</span>
+            {% endif %}
+        </div>
+
+        {# Inline preview for common image formats — DICOM/NIfTI open in new tab #}
+        {% set ext = scan.original_filename.rsplit('.', 1)[-1].lower() %}
+        {% if ext in ['png', 'jpg', 'jpeg', 'tif', 'tiff'] %}
+        <div class="scan-preview-container" id="scan-preview-container">
+            <img
+                id="scan-inline-preview"
+                class="scan-preview-img"
+                src="{{ url_for('doctor.view_scan_file', scan_id=scan.id) }}"
+                alt="MRI Scan — {{ scan.original_filename }}"
+                loading="lazy"
+            >
+            <p class="scan-preview-note">
+                <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                This is the raw uploaded scan. Clinical interpretation requires qualified medical review.
+            </p>
+        </div>
+        {% else %}
+        <div class="scan-preview-container scan-preview-nonimage">
+            <svg class="ui-icon-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <p class="scan-preview-note" style="margin-top: 0.75rem;">
+                <strong>{{ ext | upper }}</strong> format — use the buttons above to open or download this file.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

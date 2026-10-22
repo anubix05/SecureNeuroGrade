@@ -1,0 +1,92 @@
+# =============================================================================
+# SecureNeuroGrade — .gitignore
+# =============================================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+*.manifest
+*.spec
+
+# --- Virtual Environment ---
+venv/
+env/
+.venv/
+.env
+.env.*
+!.env.example
+
+# --- IDE & Notebooks ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# --- Flask / Web / Database ---
+instance/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3
+*.sqlite3-journal
+
+# --- Uploaded Medical Images (sensitive) ---
+uploads/
+app/uploads/
+data/raw/
+data/processed/
+
+# --- ML Checkpoints & Large Files ---
+ml/checkpoints/
+ml/datasets/
+*.h5
+*.hdf5
+*.keras
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.pb
+*.tflite
+
+# Whitelist trained brain tumor model checkpoint (42.1 MB - safe for GitHub <100MB)
+!ml/models/brain_tumor/checkpoints/brain_tumor_model.keras
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Coverage / Testing ---
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# --- Distribution ---
+*.tar.gz
+*.whl

@@ -1,0 +1,28 @@
+{
+    "organ_type": "brain",
+    "model_name": "brain-tumor-cnn",
+    "model_version": "v0.1-placeholder",
+    "description": "Brain tumor classification model configuration. Currently a placeholder — update when a trained model checkpoint is available.",
+    "input_shape": [224, 224, 3],
+    "classes": [
+        "glioma",
+        "meningioma",
+        "pituitary",
+        "no_tumor"
+    ],
+    "preprocessing": {
+        "resize": [224, 224],
+        "normalize": true,
+        "normalize_range": [0.0, 1.0],
+        "color_mode": "rgb"
+    },
+    "training": {
+        "dataset_version": null,
+        "training_date": null,
+        "epochs": null,
+        "batch_size": null,
+        "optimizer": null,
+        "learning_rate": null
+    },
+    "notes": "This config defines the expected input format and class mapping. Actual model metrics should be filled in after training and evaluation. Do NOT fabricate metrics."
+}

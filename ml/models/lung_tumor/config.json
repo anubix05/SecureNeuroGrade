@@ -1,0 +1,21 @@
+{
+    "disease_type": "lung_tumor",
+    "organ_type": "lung",
+    "model_name": "lung-tumor-cnn",
+    "model_version": "v0.1-placeholder",
+    "description": "Lung tumor classification model configuration (Adenocarcinoma, Squamous Cell Carcinoma, Large Cell Carcinoma, Normal).",
+    "input_shape": [224, 224, 3],
+    "classes": [
+        "adenocarcinoma",
+        "squamous_cell_carcinoma",
+        "large_cell_carcinoma",
+        "normal"
+    ],
+    "preprocessing": {
+        "resize": [224, 224],
+        "normalize": true,
+        "normalize_range": [0.0, 1.0],
+        "color_mode": "rgb"
+    },
+    "notes": "Organized under ml/models/lung_tumor/ for multi-organ roadmap extension."
+}

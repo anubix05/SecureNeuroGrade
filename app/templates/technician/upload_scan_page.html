@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Upload MRI Scan — SecureNeuroGrade{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('technician.dashboard') }}" class="btn btn-outline btn-sm back-btn" data-fallback="{{ url_for('technician.dashboard') }}">
+        <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back
+    </a>
+    <h1>Upload MRI Scan</h1>
+</div>
+
+<div class="card upload-card">
+    <div class="card-header">
+        <h2>
+            <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            New Scan Submission
+        </h2>
+    </div>
+    <div class="card-body">
+        <form
+            method="POST"
+            action="{{ url_for('technician.upload_scan') }}"
+            enctype="multipart/form-data"
+            id="upload-form"
+        >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-row">
+                <div class="form-group form-group-half">
+                    <label for="patient_identifier" class="form-label">Patient Identifier *</label>
+                    <input
+                        type="text"
+                        id="patient_identifier"
+                        name="patient_identifier"
+                        class="form-input"
+                        placeholder="e.g., PT-2026-001"
+                        required
+                    >
+                    <span class="form-hint">Anonymized identifier only — no real names</span>
+                </div>
+
+                <div class="form-group form-group-quarter">
+                    <label for="patient_age" class="form-label">Age</label>
+                    <input
+                        type="number"
+                        id="patient_age"
+                        name="patient_age"
+                        class="form-input"
+                        min="0"
+                        max="150"
+                        placeholder="—"
+                    >
+                </div>
+
+                <div class="form-group form-group-quarter">
+                    <label for="patient_gender" class="form-label">Gender</label>
+                    <select id="patient_gender" name="patient_gender" class="form-input">
+                        <option value="">—</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="scan_file" class="form-label">MRI Scan File *</label>
+                <div class="file-upload-area" id="file-upload-area">
+                    <input
+                        type="file"
+                        id="scan_file"
+                        name="scan_file"
+                        class="file-input"
+                        accept=".png,.jpg,.jpeg,.tif,.tiff,.dcm,.nii"
+                        required
+                    >
+                    <div class="file-upload-content">
+                        <span class="file-upload-icon">
+                            <svg class="ui-icon ui-icon-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </span>
+                        <p class="file-upload-text">
+                            Click to select or drag and drop an MRI scan
+                        </p>
+                        <p class="file-upload-hint">
+                            Supported: PNG, JPG, TIFF, DICOM (.dcm), NIfTI (.nii) — Max 50 MB
+                        </p>
+                    </div>
+                    <div class="file-selected" id="file-selected" style="display:none;">
+                        <span class="file-selected-icon">
+                            <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </span>
+                        <span class="file-selected-name" id="file-selected-name"></span>
+                        <span class="file-selected-size" id="file-selected-size"></span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="upload-submit" class="btn btn-primary">
+                <svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Encrypt &amp; Upload Scan
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
