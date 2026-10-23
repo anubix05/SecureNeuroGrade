@@ -327,11 +327,19 @@ Open browser to `http://127.0.0.1:5000/auth/login`
 
 ## 🗺️ Multi-Organ Extensibility Roadmap
 
-The system architecture is engineered to support future multi-organ tumor analysis without refactoring existing core pipelines:
+SecureNeuroGrade is built as a **multi-organ tumor detection platform**. The core pipeline — encryption, quality checking, inference routing, classification, audit logging, and access control — is fully organ-agnostic.
 
-- **Database Abstraction:** `ModelVersion.organ_type` and `Scan.organ_type` fields track organ contexts (`brain`, `lung`, `liver`, `kidney`).
-- **Configuration Registry:** Per-organ ML configuration files located in `ml/configs/` (e.g., `brain_tumor_config.json`, `lung_tumor_config.json`).
-- **Pipeline Extension:** Adding a new organ model requires registering a new model checkpoint and configuration record without altering Flask route handlers.
+| Phase | Organ | Status |
+|:---:|:---|:---:|
+| **Phase 1** | Brain Tumor Detection | Active (current prototype) |
+| Phase 2 | Lung Tumor Detection | Planned |
+| Phase 2 | Liver Tumor Detection | Planned |
+| Phase 2 | Kidney Tumor Detection | Planned |
+| Future | Additional organs (as approved) | Architecture-ready |
+
+- **Database Abstraction:** `ModelVersion.organ_type` and `Scan.organ_type` fields route each scan to the correct inference model (`brain`, `lung`, `liver`, `kidney`, …).
+- **Configuration Registry:** Per-organ ML configuration files in `ml/configs/` (e.g., `brain_tumor_config.json`, `lung_tumor_config.json`).
+- **Pipeline Extension:** Adding a new organ model requires only: training a new checkpoint, adding a config file, and registering a `ModelVersion` record — no changes to Flask route handlers.
 
 ---
 

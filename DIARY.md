@@ -47,11 +47,11 @@ Completion is calculated using a weighted rubric where the AI model carries the 
 | **AI Model Checkpoint & Training** | EfficientNetB0 notebook ready; checkpoint weights not yet trained | Pending | **30%** |
 | **Automated Test Suite** | Unit, Integration & Security Tests | Pending | **10%** |
 | **Production Server & HTTPS** | WSGI Configuration (Waitress/Gunicorn), TLS/SSL | Pending | **20%** |
-| **Phase 2: Multi-Organ Expansion** | Brain (primary), Breast, Skin classification models (approved future scope) | Future | **0%** |
+| **Phase 2: Multi-Organ Expansion** | Brain (Phase 1 active), Lung, Liver, Kidney detection models (planned future scope) | Future | **0%** |
 
 > **Note on M1 (85% vs 100%):** The AES-256-GCM cipher, key management, nonce handling, and file-level encrypt/decrypt functions are fully implemented. The remaining 15% is wiring the `encrypt_file` call directly into the technician upload HTTP POST handler so scans are encrypted to disk before storage. The infrastructure exists — it is not yet called from the upload route.
 
-> **Note on Phase 2 Organs:** The Zeroth Review approved brain as the primary scope. Phase 2 plans cover **breast and skin** MRI/imaging models, not lung/liver/kidney, which were listed in error in the previous version of this file.
+> **Note on Phase 2 Organs:** Brain tumor detection is the Phase 1 scope (currently active). Phase 2 plans cover **lung, liver, and kidney** tumor detection models, following the same disease-sorted ML architecture already in place.
 
 ---
 
@@ -107,7 +107,7 @@ Completion is calculated using a weighted rubric where the AI model carries the 
 | **M1 Upload Encryption Wiring** | High | 0.5 Day | Call `encrypt_scan()` in `technician.py` upload handler before saving file to disk. |
 | **Automated Test Suite** | Medium | 1–2 Days | Unit and integration tests in `tests/` using `pytest`. Authentication, role access, upload validation, inference pipeline. |
 | **Production WSGI & HTTPS** | Medium | 0.5 Day | Waitress/Gunicorn WSGI server configuration and TLS certificate setup. |
-| **Phase 2 Multi-Organ Expansion** | Future | Phase 2 | Breast and skin imaging models following the same disease-sorted ML architecture. |
+| **Phase 2 Multi-Organ Expansion** | Future | Phase 2 | Lung, liver, and kidney tumor detection models following the same disease-sorted ML architecture. |
 
 ---
 
