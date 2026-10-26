@@ -49,6 +49,20 @@ class TestClassificationService(unittest.TestCase):
         self.assertEqual(res['prediction_class'], 'no_tumor')
         self.assertEqual(res['risk_level'], RiskLevel.LOW)
 
+    def test_classify_liver_healthy_class(self):
+        """The liver model's Healthy class must not be classified as tumor."""
+        mock_output = {
+            'predicted_class': 'Healthy',
+            'confidence': 0.92,
+            'predictions': {'Healthy': 0.92, 'Angiosarcoma': 0.02},
+            'is_placeholder': False,
+            'organ_type': 'liver',
+        }
+        res = classify_result(mock_output)
+        self.assertFalse(res['tumor_detected'])
+        self.assertEqual(res['prediction_class'], 'Healthy')
+        self.assertEqual(res['risk_level'], RiskLevel.LOW)
+
     def test_assess_risk_thresholds(self):
         """Verify the confidence boundaries map accurately to risk levels."""
         self.assertEqual(assess_risk('meningioma', 0.90, tumor_detected=True), RiskLevel.CRITICAL)

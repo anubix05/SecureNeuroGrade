@@ -1,0 +1,21 @@
+
+{
+  "organ_type": "liver",
+  "model_name": "liver-tumor-classifier",
+  "model_version": "trained-v1",
+  "description": "Five-class liver image classifier trained in Google Colab.",
+  "input_shape": [224, 224, 3],
+  "classes": [
+    "Angiosarcoma",
+    "Cholangiocarcinoma",
+    "Hemangioma",
+    "Hepatocellular_Carcinoma",
+    "Healthy"
+  ],
+  "preprocessing": {
+    "resize": [224, 224],
+    "normalize": true,
+    "normalize_range": [0.0, 1.0],
+    "color_mode": "rgb"
+  }
+}

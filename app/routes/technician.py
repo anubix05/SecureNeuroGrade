@@ -30,7 +30,7 @@ from app.security.authorization import role_required
 from app.services.audit_service import log_audit_event
 from app.services.classification_service import classify_result
 from app.services.image_service import save_upload
-from app.services.inference_service import run_inference
+from app.services.inference_service import MODEL_PATHS, run_inference
 from app.services.quality_service import validate_scan
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,10 @@ def dashboard():
 @role_required('LAB_TECHNICIAN')
 def upload_scan_page():
     """Standalone MRI scan upload page."""
-    return render_template('technician/upload_scan_page.html')
+    return render_template(
+        'technician/upload_scan_page.html',
+        organ_types=sorted(MODEL_PATHS),
+    )
 
 
 @technician_bp.route('/upload', methods=['POST'])
@@ -75,6 +78,11 @@ def upload_scan():
     patient_identifier = request.form.get('patient_identifier', '').strip()
     if not patient_identifier:
         flash('Patient identifier is required.', 'danger')
+        return redirect(url_for('technician.upload_scan_page'))
+
+    organ_type = request.form.get('organ_type', '').strip().lower()
+    if organ_type not in MODEL_PATHS:
+        flash('Select a supported scan type.', 'danger')
         return redirect(url_for('technician.upload_scan_page'))
 
     # --- Validate file upload ---
@@ -117,7 +125,7 @@ def upload_scan():
         original_filename=file_info['original_filename'],
         file_hash=file_info['file_hash'],
         file_size=file_info['file_size'],
-        organ_type='brain',
+        organ_type=organ_type,
         status=ScanStatus.UPLOADED,
     )
     db.session.add(scan)

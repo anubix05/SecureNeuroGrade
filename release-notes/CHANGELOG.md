@@ -53,6 +53,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - **CAFNet Model Integration & Custom Layer Deserialization** — Integrated the newly trained CAFNet v2.0 checkpoint (`brain_tumor_model.keras` achieving 91.12% test accuracy) into the live SecureNeuroGrade inference pipeline. Added registered `PositionEmbedding` custom layer to `ml/models/brain_tumor/architecture.py`, updated `app/services/inference_service.py` to supply `custom_objects` and configure CPU execution without requiring external C++ compilers, and verified end-to-end real inference execution (`is_placeholder=False`) across sample MRI scans.
 - **Automated Unit Test Suite (`tests/`)** — Added comprehensive automated test suite covering application factory and routing (`test_app.py`), authentication and bcrypt password hashing (`test_auth.py`), AES-256-GCM encryption/decryption roundtrip and tamper resistance (`test_encryption.py`), Module M2 scan quality validation (`test_quality.py`), and Module M3 classification and risk categorization (`test_classification.py`). All 14 tests run via standard `python -m unittest`.
 
+### Changed
+- **Liver Model Inference Integration** — Added organ-specific checkpoint/config loading and caching for liver scans, a technician upload selector for registered scan types, server-side organ validation, output-count validation, and the TensorFlow Keras backend. Declared TensorFlow as an inference dependency. Removed the synthetic-score fallback that could label generated scores as real model predictions.
+
+### Testing
+- Added tests for liver checkpoint configuration, output/class mapping, output-count mismatch rejection, and classification of the liver model's `Healthy` class.
+
 ### Fixed
 - **Setup Script Encoding** — Fixed `UnicodeEncodeError` on Windows consoles in `scripts/setup.py` by configuring stdout stream encoding and replacing unicode symbols with ASCII status tags.
 - **Brain Tumor Training Notebook (`train_brain_tumor.ipynb`)** — Resolved critical data leakage and severe class imbalance in the 85/15 validation split by enforcing `shuffle=True` and synchronized random seed across both training and validation sets. Reused persistent `ModelCheckpoint` instance across Phase 1 and Phase 2 fine-tuning to prevent overwriting superior checkpoints. Added `opencv-python` to pip dependencies and made dataset zip discovery flexible for various archive naming formats (`archive.zip`, `archive__8__3.zip`).
