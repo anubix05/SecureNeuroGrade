@@ -30,6 +30,15 @@
         >
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
+            <div class="form-group">
+                <label for="organ_type" class="form-label">Scan Type *</label>
+                <select id="organ_type" name="organ_type" class="form-input" required>
+                    {% for organ_type in organ_types %}
+                    <option value="{{ organ_type }}">{{ organ_type | capitalize }} tumor</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <div class="form-row">
                 <div class="form-group form-group-half">
                     <label for="patient_identifier" class="form-label">Patient Identifier *</label>
